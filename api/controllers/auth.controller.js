@@ -65,7 +65,7 @@ export const signin = async (req, res, next) => {
 
 // google sign-in sign-up
 export const google = async (req, res, next) => {
-  const { email, phpto, name } = req.body;
+  const { email, photo, name } = req.body;
   try {
     const user = await User.findOne({ email });
     if (user) {
@@ -90,7 +90,7 @@ export const google = async (req, res, next) => {
         password: hashedPassword,
         email,
         fullName: name,
-        avatar: phpto,
+        avatar: photo,
       });
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
       const { password: pass, ...restData } = newUser._doc;

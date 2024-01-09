@@ -7,6 +7,12 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../firebase";
+import {
+  updateUserFail,
+  updateUserStart,
+  updateUserSuccess,
+} from "../redux/user/userSlice";
+import { useDispatch } from "react-redux";
 
 const Profile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -15,6 +21,7 @@ const Profile = () => {
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (file) {
@@ -50,10 +57,32 @@ const Profile = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updateUserStart());
+      const response = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (data.success === false) {
+        dispatch(updateUserFail(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+    } catch (error) {
+      dispatch(updateUserFail(error.message));
+    }
+  };
+
   return (
     <div className="p-3 mx-auto max-w-lg">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input
           onChange={(e) => setFile(e.target.files[0])}
           ref={fileRef}
@@ -85,30 +114,37 @@ const Profile = () => {
           id="username"
           placeholder="username"
           className="p-3 rounded-lg "
+          defaultValue={currentUser.username}
+          onChange={handleChange}
         />
         <input
           type="email"
           id="email"
           placeholder="email"
           className="p-3 rounded-lg "
+          defaultValue={currentUser.email}
+          onChange={handleChange}
         />
         <input
           type="password"
           id="password"
           placeholder="password"
           className="p-3 rounded-lg "
+          onChange={handleChange}
         />
         <button
           type="submit"
+          disabled={loading}
           className="bg-slate-700 p-3 rounded-lg uppercase text-white hover:opacity-90"
         >
-          Update
+          {loading ? "Updating..." : "Update"}
         </button>
       </form>
       <div className="flex justify-between text-red-700 mt-5">
         <span className="cursor-pointer">Delete Account</span>
         <span className="cursor-pointer">Sign Out</span>
       </div>
+      {<p className="text-red-600 mt-2">{error}</p>}
     </div>
   );
 };

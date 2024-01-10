@@ -100,6 +100,23 @@ const Profile = () => {
     }
   };
 
+  const handleSignout = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch("/api/auth/signout", {
+        method: "GET",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFail(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFail(error.message));
+    }
+  };
+
   return (
     <div className="p-3 mx-auto max-w-lg">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -165,7 +182,9 @@ const Profile = () => {
         <span onClick={handleDeleteAccount} className="cursor-pointer">
           Delete Account
         </span>
-        <span className="cursor-pointer">Sign Out</span>
+        <span onClick={handleSignout} className="cursor-pointer">
+          Sign Out
+        </span>
       </div>
       {<p className="text-red-600 mt-2">{error}</p>}
     </div>

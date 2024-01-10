@@ -8,6 +8,9 @@ import {
 } from "firebase/storage";
 import { app } from "../firebase";
 import {
+  deleteUserFail,
+  deleteUserStart,
+  deleteUserSuccess,
   updateUserFail,
   updateUserStart,
   updateUserSuccess,
@@ -79,6 +82,24 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFail(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      //make a common reducer for this loading and error
+      dispatch(deleteUserFail(error.message));
+    }
+  };
+
   return (
     <div className="p-3 mx-auto max-w-lg">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -141,7 +162,9 @@ const Profile = () => {
         </button>
       </form>
       <div className="flex justify-between text-red-700 mt-5">
-        <span className="cursor-pointer">Delete Account</span>
+        <span onClick={handleDeleteAccount} className="cursor-pointer">
+          Delete Account
+        </span>
         <span className="cursor-pointer">Sign Out</span>
       </div>
       {<p className="text-red-600 mt-2">{error}</p>}

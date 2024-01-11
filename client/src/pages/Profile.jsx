@@ -16,6 +16,7 @@ import {
   updateUserSuccess,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -177,6 +178,12 @@ const Profile = () => {
         >
           {loading ? "Updating..." : "Update"}
         </button>
+        <Link
+          to="/create-listing"
+          className="bg-green-700 p-3 text-white uppercase rounded-lg text-center hover:opacity-95"
+        >
+          Create Listing
+        </Link>
       </form>
       <div className="flex justify-between text-red-700 mt-5">
         <span onClick={handleDeleteAccount} className="cursor-pointer">

@@ -25,6 +25,8 @@ const Profile = () => {
   const [filePerc, setFilePerc] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [formData, setFormData] = useState({});
+  const [listingError, setListingError] = useState(false);
+  const [userListings, setUserListings] = useState([]);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -118,6 +120,39 @@ const Profile = () => {
     }
   };
 
+  const showListings = async () => {
+    try {
+      setListingError(false);
+      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
+      if (data.success === false) {
+        setListingError(true);
+        return;
+      }
+      setUserListings(data);
+    } catch (error) {
+      setListingError(true);
+    }
+  };
+
+  const handleDeleteListing = async (listingId) => {
+    try {
+      const res = await fetch(`/api/listing/delete/${listingId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        return;
+      }
+      setUserListings((prev) =>
+        prev.filter((listing) => listing._id !== listingId)
+      );
+    } catch (error) {
+      //make a common reducer for this loading and error
+      console.log(error);
+    }
+  };
+
   return (
     <div className="p-3 mx-auto max-w-lg">
       <h1 className="text-3xl font-semibold text-center my-7">Profile</h1>
@@ -133,7 +168,7 @@ const Profile = () => {
           onClick={() => fileRef.current.click()}
           src={formData.avatar || currentUser.avatar}
           alt="profile"
-          className="rounded-full w-24 h-24 object-cover my-2 self-center cursor-pointer"
+          className="rounded-full w-24 h-24 object-cover my-2 self-center cursor-pointer hover:opacity-70"
         />
         <p className="text-sm self-center">
           {fileUploadError ? (
@@ -194,6 +229,48 @@ const Profile = () => {
         </span>
       </div>
       {<p className="text-red-600 mt-2">{error}</p>}
+      <button onClick={showListings} className="text-green-700 mt-4 w-full">
+        Show Listings
+      </button>
+      <p className="text-red-600 mt-2">
+        {listingError ? "Error while showing your listing !" : ""}
+      </p>
+      {userListings.length > 0 && (
+        <div className="mt-5">
+          {userListings.map((listing) => (
+            <div
+              key={listing._id}
+              className="flex justify-between items-center border p-3 rounded-lg gap-4"
+            >
+              <img
+                src={listing.imageUrls[0]}
+                alt="listing"
+                className="w-30 h-20 object-cover rounded-lg"
+              />
+              <Link
+                to={`/listing/${listing._id}`}
+                className="font-semibold hover:underline flex-1 truncate"
+              >
+                {listing.name}
+              </Link>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => handleDeleteListing(listing._id)}
+                  className="text-red-700 hover:opacity-95"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => handleEditListing(listing._id)}
+                  className="text-blue-700 hover:opacity-95"
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

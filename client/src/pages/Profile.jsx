@@ -260,12 +260,14 @@ const Profile = () => {
                 >
                   Delete
                 </button>
-                <button
-                  onClick={() => handleEditListing(listing._id)}
+                <Link
+                  to={`/update-listing/${listing._id}`}
                   className="text-blue-700 hover:opacity-95"
                 >
-                  Edit
-                </button>
+                  <button className="text-blue-700 hover:opacity-95">
+                    Edit
+                  </button>
+                </Link>
               </div>
             </div>
           ))}

@@ -5,6 +5,7 @@ import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
 import "swiper/css/bundle";
 import { useSelector } from 'react-redux';
+import Contact from '../components/Contact';
 import {
   FaBath,
   FaBed,
@@ -20,6 +21,7 @@ export const Listing = () => {
   const params = useParams();
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [contact, setContact] = useState(false);
   const [error, setError] = useState("");
   const { currentUser } = useSelector((state) => state.user);
 
@@ -122,7 +124,7 @@ export const Listing = () => {
                 Contact landlord
               </button>
             )}
-            {/* {contact && <Contact listing={listing} />} */}
+            {contact && <Contact listing={listing} />}
           </div>
         </>
       )}
